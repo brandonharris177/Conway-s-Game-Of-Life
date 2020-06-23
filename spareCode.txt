@@ -1,0 +1,37 @@
+var game;
+
+  function countGenerations() {
+    // console.log(start)
+    if (start === false){
+      return
+    }
+    // setGeneration(generation+1)
+    generation = generation+1
+    console.log(generation)
+    game = setTimeout(countGenerations, 1000)
+  }
+
+  function startGame() {
+    countGenerations()
+  }
+
+  function stopGame() {
+    clearTimeout(game);
+  }
+
+   <button
+      onClick={() => {
+        // console.log("clicked Start")
+        start = true
+        startGame()
+      }} 
+      >Start
+      </button>
+      <button
+       onClick={() => {
+        // console.log("clicked Stop")
+        start = false
+        // console.log(start)
+        stopGame()
+      }} >Stop
+      </button>
