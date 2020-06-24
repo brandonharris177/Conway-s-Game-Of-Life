@@ -14,12 +14,13 @@ const operations = [
 ];
 
 function App() {
-
-  const [gridSize, setGridSize] = useState(25);
-  const [cellSize, setCellSize] = useState(30);
   const [color, setColor] = useState("blue");
   const [speed, setSpeed] = useState(1);
   const [ngen, setNgen] = useState(0)
+  const [generation, setGeneration] = useState(0)
+  const [running, setRunning] = useState(false)
+  const gridSize = 25;
+  const cellSize = 30;
 
   const [grid, setGrid] = useState(() => {
     const rows = [];
@@ -29,18 +30,13 @@ function App() {
     return rows
   })
 
-  const [generation, setGeneration] = useState(1)
-
-  const [running, setRunning] = useState(false)
-
   function toggle() {
     setRunning(!running);
   }
 
   function nGeneration() {
-    let count = generation
-    while (count <= ngen) {
-      count += 1
+    let count = generation+1
+    while (count < ngen) {
       setGrid((g) => {
         return produce(g, gridCopy => {
           for (let i = 0; i < gridSize; i++) {
@@ -53,7 +49,6 @@ function App() {
                   neighbors += g[k][l]
                 }
               })
-
               if (neighbors < 2 || neighbors > 3) {
                 gridCopy[i][j] = 0
               } else if (g[i][j] === 0 && neighbors === 3) {
@@ -63,13 +58,14 @@ function App() {
           }
         })
       })
+      count += 1
     }
-    setGeneration(count-1)
+    setGeneration(count)
   }
 
   const reset = () => {
     console.log(gridSize)
-    setGeneration(1);
+    setGeneration(0);
     const rows = [];
     for (let i = 0; i < gridSize; i++) {
       rows.push(Array.from(Array(gridSize), () => 0));
@@ -78,33 +74,36 @@ function App() {
   }
 
   useEffect(() => {
-    let interval = null;
-    if (running) {
-      setGrid((g) => {
-        return produce(g, gridCopy => {
-          for (let i = 0; i < gridSize; i++) {
-            for (let j = 0; j < gridSize; j++){
-              let neighbors = 0;
-              operations.forEach(([x, y]) => {
-                const k = i + x
-                const l = j + y
-                if (k >= 0 && k < gridSize && l >= 0 && l < gridSize) {
-                  neighbors += g[k][l]
-                }
-              })
-
-              if (neighbors < 2 || neighbors > 3) {
-                gridCopy[i][j] = 0
-              } else if (g[i][j] === 0 && neighbors === 3) {
-                gridCopy[i][j] = 1
+    setGrid((g) => {
+      return produce(g, gridCopy => {
+        for (let i = 0; i < gridSize; i++) {
+          for (let j = 0; j < gridSize; j++){
+            let neighbors = 0;
+            operations.forEach(([x, y]) => {
+              const k = i + x
+              const l = j + y
+              if (k >= 0 && k < gridSize && l >= 0 && l < gridSize) {
+                neighbors += g[k][l]
               }
+            })
+
+            if (neighbors < 2 || neighbors > 3) {
+              gridCopy[i][j] = 0
+            } else if (g[i][j] === 0 && neighbors === 3) {
+              gridCopy[i][j] = 1
             }
           }
-        })
+        }
       })
+    })
+  }, [generation])
+
+  useEffect(() => {
+    let interval = null;
+    if (running) {
       interval = setInterval(() => {
         setGeneration(generation => generation + 1);
-      }, speed * 1000);
+      }, speed * 1000)
     } else if (!running && generation !== 0) {
       clearInterval(interval);
     }
