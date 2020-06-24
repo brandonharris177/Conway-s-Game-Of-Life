@@ -1,9 +1,6 @@
 import React, {useState, useEffect} from 'react';
 import produce from 'immer';
 
-// const gridSize = 10;
-// const cellSize = 30;
-// const color = 'blue'
 
 const operations = [
   [0, 1],
@@ -22,7 +19,7 @@ function App() {
   const [cellSize, setCellSize] = useState(30);
   const [color, setColor] = useState("blue");
   const [speed, setSpeed] = useState(1);
-  // const [reset, setReset] = useState(false)
+  const [ngen, setNgen] = useState(0)
 
   const [grid, setGrid] = useState(() => {
     const rows = [];
@@ -32,14 +29,6 @@ function App() {
     return rows
   })
 
-  // const reset = useEffect(() => {
-  //   const rows = [];
-  //   for (let i = 0; i < gridSize; i++) {
-  //     rows.push(Array.from(Array(gridSize), () => 0));
-  //   }
-  //   return rows
-  // }, [])
-
   const [generation, setGeneration] = useState(1)
 
   const [running, setRunning] = useState(false)
@@ -48,8 +37,37 @@ function App() {
     setRunning(!running);
   }
 
+  function nGeneration() {
+    let count = generation
+    while (count <= ngen) {
+      count += 1
+      setGrid((g) => {
+        return produce(g, gridCopy => {
+          for (let i = 0; i < gridSize; i++) {
+            for (let j = 0; j < gridSize; j++){
+              let neighbors = 0;
+              operations.forEach(([x, y]) => {
+                const k = i + x
+                const l = j + y
+                if (k >= 0 && k < gridSize && l >= 0 && l < gridSize) {
+                  neighbors += g[k][l]
+                }
+              })
+
+              if (neighbors < 2 || neighbors > 3) {
+                gridCopy[i][j] = 0
+              } else if (g[i][j] === 0 && neighbors === 3) {
+                gridCopy[i][j] = 1
+              }
+            }
+          }
+        })
+      })
+    }
+    setGeneration(count-1)
+  }
+
   const reset = () => {
-    console.log("clicked")
     console.log(gridSize)
     setGeneration(1);
     const rows = [];
@@ -62,9 +80,7 @@ function App() {
   useEffect(() => {
     let interval = null;
     if (running) {
-      // console.log("hit")
       setGrid((g) => {
-        // console.log(g)
         return produce(g, gridCopy => {
           for (let i = 0; i < gridSize; i++) {
             for (let j = 0; j < gridSize; j++){
@@ -72,11 +88,8 @@ function App() {
               operations.forEach(([x, y]) => {
                 const k = i + x
                 const l = j + y
-                // console.log(k, l)
                 if (k >= 0 && k < gridSize && l >= 0 && l < gridSize) {
-                  // console.log(k, l)
                   neighbors += g[k][l]
-                  // console.log(neighbors)
                 }
               })
 
@@ -104,26 +117,6 @@ function App() {
       <h1>Input options</h1>
 
       <label>
-        Grid Size:
-        <input
-          name="gridSize"
-          type="number"
-          value={gridSize}
-          onChange={e => setGridSize(e.target.value)}
-          required />
-      </label>
-
-      <label>
-        Cell Size:
-        <input
-          name="cellSize"
-          type="number"
-          value={cellSize}
-          onChange={e => setCellSize(e.target.value)}
-          />
-      </label>
-
-      <label>
         Color:
         <input
           name="cellSize"
@@ -134,7 +127,17 @@ function App() {
       </label>
 
       <label>
-        Speed per generation in seconds:
+        nth Generation:
+        <input
+          name="nGen"
+          type="number"
+          value={ngen}
+          onChange={e => setNgen(e.target.value)}
+          />
+      </label>
+
+      <label>
+        Speed per Generation in seconds:
         <input
           name="Speed"
           type="number"
@@ -147,6 +150,11 @@ function App() {
       <button 
       onClick={toggle}>
           {running ? 'Stop' : 'Start'}
+      </button>
+
+      <button 
+      onClick={nGeneration}>
+          Skip to generation
       </button>
 
       <button 
