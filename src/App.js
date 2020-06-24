@@ -18,10 +18,11 @@ const operations = [
 
 function App() {
 
-  const [gridSize, setGridSize] = React.useState(10);
-  const [cellSize, setCellSize] = React.useState(30);
-  const [color, setColor] = React.useState("blue");
-  const [speed, setSpeed] = React.useState(1);
+  const [gridSize, setGridSize] = useState(25);
+  const [cellSize, setCellSize] = useState(30);
+  const [color, setColor] = useState("blue");
+  const [speed, setSpeed] = useState(1);
+  // const [reset, setReset] = useState(false)
 
   const [grid, setGrid] = useState(() => {
     const rows = [];
@@ -31,7 +32,15 @@ function App() {
     return rows
   })
 
-  const [generation, setGeneration] = useState(0)
+  // const reset = useEffect(() => {
+  //   const rows = [];
+  //   for (let i = 0; i < gridSize; i++) {
+  //     rows.push(Array.from(Array(gridSize), () => 0));
+  //   }
+  //   return rows
+  // }, [])
+
+  const [generation, setGeneration] = useState(1)
 
   const [running, setRunning] = useState(false)
 
@@ -39,9 +48,15 @@ function App() {
     setRunning(!running);
   }
 
-  function reset() {
-    setGeneration(0);
-    setRunning(false);
+  const reset = () => {
+    console.log("clicked")
+    console.log(gridSize)
+    setGeneration(1);
+    const rows = [];
+    for (let i = 0; i < gridSize; i++) {
+      rows.push(Array.from(Array(gridSize), () => 0));
+    }
+    return rows
   }
 
   useEffect(() => {
@@ -86,7 +101,7 @@ function App() {
   return (
     <div className="App">
       <form>
-      <h1>Create Account</h1>
+      <h1>Input options</h1>
 
       <label>
         Grid Size:
@@ -119,7 +134,7 @@ function App() {
       </label>
 
       <label>
-        Speed:
+        Speed per generation in seconds:
         <input
           name="Speed"
           type="number"
@@ -128,15 +143,22 @@ function App() {
           />
       </label>
 
-      <button>Submit</button>
     </form>
-      <button onClick={toggle}>
-          {running ? 'Pause' : 'Start'}
+      <button 
+      onClick={toggle}>
+          {running ? 'Stop' : 'Start'}
       </button>
-      <button onClick={reset}>
-          Reset
+
+      <button 
+      onClick={() => {
+        setGrid(reset);
+      }}
+      >
+        Reset
       </button>
+
       <div>Generation: {generation}</div>
+
       <div style ={{
         display: 'grid',
         gridTemplateColumns: `repeat(${gridSize}, ${cellSize}px)`
