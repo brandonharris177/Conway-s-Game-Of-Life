@@ -14,7 +14,7 @@ const operations = [
 ];
 
 function App() {
-  const [color, setColor] = useState("blue");
+  const [color, setColor] = useState("black");
   const [speed, setSpeed] = useState(1);
   const [ngen, setNgen] = useState(0)
   const [generation, setGeneration] = useState(0)
