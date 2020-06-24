@@ -1,20 +1,9 @@
 import React, {useState, useEffect} from 'react';
 import produce from 'immer';
 
-
-const operations = [
-  [0, 1],
-  [0, -1],
-  [1, -1],
-  [-1, 1],
-  [1, 1],
-  [-1, -1],
-  [1, 0],
-  [-1, 0]
-];
-
 function App() {
   const [color, setColor] = useState("black");
+  const [cellBackground, setCellBackground] = useState("white");
   const [speed, setSpeed] = useState(1);
   const [ngen, setNgen] = useState(0)
   const [generation, setGeneration] = useState(0)
@@ -22,13 +11,9 @@ function App() {
   const gridSize = 25;
   const cellSize = 30;
 
-  const [grid, setGrid] = useState(() => {
-    const rows = [];
-    for (let i = 0; i < gridSize; i++) {
-      rows.push(Array.from(Array(gridSize), () => 0));
-    }
-    return rows
-  })
+  const [grid, setGrid] = useState(Array.from({length: gridSize}).map(() => Array.from({length: gridSize}).fill(0)))
+
+  const neighborsArray = [[0, 1], [0, -1], [1, -1], [-1, 1], [1, 1], [-1, -1], [1, 0], [-1, 0]]  
 
   function toggle() {
     setRunning(!running);
@@ -37,22 +22,26 @@ function App() {
   function nGeneration() {
     let count = generation+1
     while (count < ngen) {
-      setGrid((g) => {
-        return produce(g, gridCopy => {
-          for (let i = 0; i < gridSize; i++) {
-            for (let j = 0; j < gridSize; j++){
+      setGrid((oldGrid) => {
+        return produce(oldGrid, newGrid => {
+          for (let row = 0; row < gridSize; row++) {
+            for (let column = 0; column < gridSize; column++){
               let neighbors = 0;
-              operations.forEach(([x, y]) => {
-                const k = i + x
-                const l = j + y
-                if (k >= 0 && k < gridSize && l >= 0 && l < gridSize) {
-                  neighbors += g[k][l]
+              neighborsArray.forEach(neighbor => {
+                const xValue = row + neighbor[0]
+                const yValue = column + neighbor[1]
+                if (xValue >= 0 && xValue < gridSize && yValue >= 0 && yValue < gridSize) {
+                  neighbors += oldGrid[xValue][yValue]
                 }
               })
-              if (neighbors < 2 || neighbors > 3) {
-                gridCopy[i][j] = 0
-              } else if (g[i][j] === 0 && neighbors === 3) {
-                gridCopy[i][j] = 1
+              if (neighbors < 2) {
+                newGrid[row][column] = 0
+              }  
+              else if (neighbors > 3) {
+                  newGrid[row][column] = 0
+                }
+              else if (oldGrid[row][column] === 0 && neighbors === 3) {
+                  newGrid[row][column] = 1
               }
             }
           }
@@ -63,34 +52,33 @@ function App() {
     setGeneration(count)
   }
 
-  const reset = () => {
-    console.log(gridSize)
+  function reset() {
     setGeneration(0);
-    const rows = [];
-    for (let i = 0; i < gridSize; i++) {
-      rows.push(Array.from(Array(gridSize), () => 0));
-    }
-    return rows
+    setGrid(Array.from({length: gridSize}).map(() => Array.from({length: gridSize}).fill(0)))
   }
 
   useEffect(() => {
-    setGrid((g) => {
-      return produce(g, gridCopy => {
-        for (let i = 0; i < gridSize; i++) {
-          for (let j = 0; j < gridSize; j++){
+    setGrid((oldGrid) => {
+      return produce(oldGrid, newGrid => {
+        for (let row = 0; row < gridSize; row++) {
+          for (let column = 0; column < gridSize; column++){
             let neighbors = 0;
-            operations.forEach(([x, y]) => {
-              const k = i + x
-              const l = j + y
-              if (k >= 0 && k < gridSize && l >= 0 && l < gridSize) {
-                neighbors += g[k][l]
+            neighborsArray.forEach(neighbor => {
+              const xValue = row + neighbor[0]
+              const yValue = column + neighbor[1]
+              if (xValue >= 0 && xValue < gridSize && yValue >= 0 && yValue < gridSize) {
+                neighbors += oldGrid[xValue][yValue]
               }
             })
 
-            if (neighbors < 2 || neighbors > 3) {
-              gridCopy[i][j] = 0
-            } else if (g[i][j] === 0 && neighbors === 3) {
-              gridCopy[i][j] = 1
+            if (neighbors < 2) {
+              newGrid[row][column] = 0
+            }  
+            else if (neighbors > 3) {
+                newGrid[row][column] = 0
+              }
+            else if (oldGrid[row][column] === 0 && neighbors === 3) {
+                newGrid[row][column] = 1
             }
           }
         }
@@ -112,13 +100,42 @@ function App() {
 
   return (
     <div className="App">
+      <p>
+      The universe of the Game of Life is an infinite, two-dimensional orthogonal grid of square cells, each of which is in one of two possible states, live or dead, (or populated and unpopulated,
+       respectively). 
+       <br>
+      </br>
+       Every cell interacts with its eight neighbours, which are the cells that are horizontally, vertically, or diagonally adjacent. At each step in time, the following transitions occur:
+       <br>
+      </br>
+      Any live cell with fewer than two live neighbours dies, as if by underpopulation.
+      <br>
+      </br>
+      Any live cell with two or three live neighbours lives on to the next generation.
+      <br>
+      </br>
+      Any live cell with more than three live neighbours dies, as if by overpopulation.
+      <br>
+      </br>
+      Any dead cell with exactly three live neighbours becomes a live cell, as if by reproduction.
+      <br>
+      </br>
+      These rules, which compare the behavior of the automaton to real life, can be condensed into the following:
+
+      Any live cell with two or three live neighbours survives.
+      <br>
+      </br>
+      Any dead cell with three live neighbours becomes a live cell.
+      <br>
+      </br>
+      All other live cells die in the next generation. Similarly, all other dead cells stay dead.
+      </p>
       <form>
       <h1>Input options</h1>
 
       <label>
         Color:
         <input
-          name="cellSize"
           type="text"
           value={color}
           onChange={e => setColor(e.target.value)}
@@ -126,9 +143,17 @@ function App() {
       </label>
 
       <label>
+        Background Color:
+        <input
+          type="text"
+          value={cellBackground}
+          onChange={e => setCellBackground(e.target.value)}
+          />
+      </label>
+
+      <label>
         nth Generation:
         <input
-          name="nGen"
           type="number"
           value={ngen}
           onChange={e => setNgen(e.target.value)}
@@ -138,7 +163,6 @@ function App() {
       <label>
         Speed per Generation in seconds:
         <input
-          name="Speed"
           type="number"
           value={speed}
           onChange={e => setSpeed(e.target.value)}
@@ -158,7 +182,7 @@ function App() {
 
       <button 
       onClick={() => {
-        setGrid(reset);
+        reset();
       }}
       >
         Reset
@@ -175,15 +199,15 @@ function App() {
             <div 
             key ={`${ri}x${ci}`} 
             onClick={() => {
-              const newGrid = produce(grid, gridCopy => {
-                gridCopy[ri][ci] = grid[ri][ci] ? 0 : 1;
+              const newGrid = produce(grid, newGrid => {
+                newGrid[ri][ci] = grid[ri][ci] ? 0 : 1;
               });
               setGrid(newGrid);
             }}
             style={{
               width: cellSize, 
               height: cellSize, 
-              backgroundColor: grid[ri][ci] ? `${color}` : undefined, 
+              backgroundColor: grid[ri][ci] ? `${color}` : `${cellBackground}`, 
               border: "solid 1px black"
             }} />)
         )}
