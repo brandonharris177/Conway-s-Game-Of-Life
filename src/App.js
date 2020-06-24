@@ -1,11 +1,28 @@
 import React, {useState, useEffect} from 'react';
 import produce from 'immer';
 
-const gridSize = 10;
-const cellSize = 30;
-const color = 'blue'
+// const gridSize = 10;
+// const cellSize = 30;
+// const color = 'blue'
+
+const operations = [
+  [0, 1],
+  [0, -1],
+  [1, -1],
+  [-1, 1],
+  [1, 1],
+  [-1, -1],
+  [1, 0],
+  [-1, 0]
+];
 
 function App() {
+
+  const [gridSize, setGridSize] = React.useState(10);
+  const [cellSize, setCellSize] = React.useState(30);
+  const [color, setColor] = React.useState("blue");
+  const [speed, setSpeed] = React.useState(1);
+
   const [grid, setGrid] = useState(() => {
     const rows = [];
     for (let i = 0; i < gridSize; i++) {
@@ -14,10 +31,8 @@ function App() {
     return rows
   })
 
-  // var generation = 0
   const [generation, setGeneration] = useState(0)
 
-  // var start = false
   const [running, setRunning] = useState(false)
 
   function toggle() {
@@ -32,9 +47,36 @@ function App() {
   useEffect(() => {
     let interval = null;
     if (running) {
+      // console.log("hit")
+      setGrid((g) => {
+        // console.log(g)
+        return produce(g, gridCopy => {
+          for (let i = 0; i < gridSize; i++) {
+            for (let j = 0; j < gridSize; j++){
+              let neighbors = 0;
+              operations.forEach(([x, y]) => {
+                const k = i + x
+                const l = j + y
+                // console.log(k, l)
+                if (k >= 0 && k < gridSize && l >= 0 && l < gridSize) {
+                  // console.log(k, l)
+                  neighbors += g[k][l]
+                  // console.log(neighbors)
+                }
+              })
+
+              if (neighbors < 2 || neighbors > 3) {
+                gridCopy[i][j] = 0
+              } else if (g[i][j] === 0 && neighbors === 3) {
+                gridCopy[i][j] = 1
+              }
+            }
+          }
+        })
+      })
       interval = setInterval(() => {
         setGeneration(generation => generation + 1);
-      }, 1000);
+      }, speed * 1000);
     } else if (!running && generation !== 0) {
       clearInterval(interval);
     }
@@ -43,6 +85,51 @@ function App() {
 
   return (
     <div className="App">
+      <form>
+      <h1>Create Account</h1>
+
+      <label>
+        Grid Size:
+        <input
+          name="gridSize"
+          type="number"
+          value={gridSize}
+          onChange={e => setGridSize(e.target.value)}
+          required />
+      </label>
+
+      <label>
+        Cell Size:
+        <input
+          name="cellSize"
+          type="number"
+          value={cellSize}
+          onChange={e => setCellSize(e.target.value)}
+          />
+      </label>
+
+      <label>
+        Color:
+        <input
+          name="cellSize"
+          type="text"
+          value={color}
+          onChange={e => setColor(e.target.value)}
+          />
+      </label>
+
+      <label>
+        Speed:
+        <input
+          name="Speed"
+          type="number"
+          value={speed}
+          onChange={e => setSpeed(e.target.value)}
+          />
+      </label>
+
+      <button>Submit</button>
+    </form>
       <button onClick={toggle}>
           {running ? 'Pause' : 'Start'}
       </button>
