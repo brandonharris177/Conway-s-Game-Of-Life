@@ -1,5 +1,6 @@
 import React, {useState, useEffect} from 'react';
 import produce from 'immer';
+import styled from 'styled-components';
 
 function App() {
   const [color, setColor] = useState("black");
@@ -9,7 +10,10 @@ function App() {
   const [generation, setGeneration] = useState(0)
   const [running, setRunning] = useState(false)
   const gridSize = 25;
-  const cellSize = 30;
+  const cellSize = 25;
+  const font = "'VT323', monospace"
+  const textColor = "white"
+  const fontSize = 2.1
 
   const [grid, setGrid] = useState(Array.from({length: gridSize}).map(() => Array.from({length: gridSize}).fill(0)))
 
@@ -98,120 +102,175 @@ function App() {
     return () => clearInterval(interval);
   }, [running, generation]);
 
+  const Heading = styled.h2`
+  font-size: ${fontSize+.5}rem;
+  font-family: ${font};
+  color: ${textColor};
+  `
+  
+  const Button = styled.button`
+  font-size: 1.5rem;
+  padding: 0.25em 1em;
+  border-radius: 7%;
+  font-family: ${font};
+`;
+
+  const UnorderdList = styled.ul`
+
+  `;
+
+  const ListItem = styled.li`
+  font-family: ${font};
+  font-size: 2rem;
+  color: ${textColor}
+  `;
+
+  const ButtonContainer = styled.div`
+  display: flex;
+  width: 100%;
+  justify-content: space-around;
+  `;
+
+  const StyledLabel = styled.label`
+  font-family: ${font};
+  font-size: ${fontSize}rem;
+  color: ${textColor}
+  `;
+
+  const Paragraph = styled.p`
+  font-family: ${font};
+  font-size: 1.5rem;
+  color: ${textColor};
+  `;
+
   return (
     <div className="App">
-      <p>
-      The universe of the Game of Life is an infinite, two-dimensional orthogonal grid of square cells, each of which is in one of two possible states, live or dead, (or populated and unpopulated,
-       respectively). 
-       <br>
-      </br>
-       Every cell interacts with its eight neighbours, which are the cells that are horizontally, vertically, or diagonally adjacent. At each step in time, the following transitions occur:
-       <br>
-      </br>
-      Any live cell with fewer than two live neighbours dies, as if by underpopulation.
-      <br>
-      </br>
-      Any live cell with two or three live neighbours lives on to the next generation.
-      <br>
-      </br>
-      Any live cell with more than three live neighbours dies, as if by overpopulation.
-      <br>
-      </br>
-      Any dead cell with exactly three live neighbours becomes a live cell, as if by reproduction.
-      <br>
-      </br>
-      These rules, which compare the behavior of the automaton to real life, can be condensed into the following:
+      <section className = "writing">
+        <Paragraph>
+        The universe of the Game of Life is an infinite, two-dimensional orthogonal grid of square cells, each of which is in one of two possible states, live or dead, (or populated and unpopulated,
+        respectively). 
+        <br/>
+        Every cell interacts with its eight neighbours, which are the cells that are horizontally, vertically, or diagonally adjacent. At each step in time, the following transitions occur:
+        <br/>
+        </Paragraph>
+        <UnorderdList>
+        <ListItem>Any live cell with fewer than two live neighbours dies, as if by underpopulation.</ListItem>
+        <br/>
+        <ListItem>Any live cell with two or three live neighbours lives on to the next generation.</ListItem>
+        <br/>
+        <ListItem>Any live cell with more than three live neighbours dies, as if by overpopulation.</ListItem>
+        <br/>
+        <ListItem>Any dead cell with exactly three live neighbours becomes a live cell, as if by reproduction.</ListItem>
+        <br/>
+        </UnorderdList>
+        <Paragraph>
+        These rules, which compare the behavior of the automaton to real life, can be condensed into the following:
+        </Paragraph>
+        <UnorderdList>
+        <ListItem>Any live cell with two or three live neighbours survives.</ListItem>
+        <br/>
+        <ListItem>Any dead cell with three live neighbours becomes a live cell.</ListItem>
+        <br/>
+        <ListItem>All other live cells die in the next generation. Similarly, all other dead cells stay dead.</ListItem>
+        </UnorderdList>
+        <br/>
+        <Paragraph>
+        For this game of life the cells outside of the grid are considered dead. You can use the controls to select the color of the live cells, the color of the dead cells, the speed of the generations, and skip to the generation you want to view. 
+        </Paragraph>
+      </section>
+    
+      <section className = "game">
+        <form>
+        <Heading>Input options</Heading>
 
-      Any live cell with two or three live neighbours survives.
-      <br>
-      </br>
-      Any dead cell with three live neighbours becomes a live cell.
-      <br>
-      </br>
-      All other live cells die in the next generation. Similarly, all other dead cells stay dead.
-      </p>
-      <form>
-      <h1>Input options</h1>
+        <StyledLabel>
+          Color:
+          <input
+            type="text"
+            value={color}
+            onChange={e => setColor(e.target.value)}
+            />
+        </StyledLabel>
 
-      <label>
-        Color:
-        <input
-          type="text"
-          value={color}
-          onChange={e => setColor(e.target.value)}
-          />
-      </label>
+        <br/>
 
-      <label>
-        Background Color:
-        <input
-          type="text"
-          value={cellBackground}
-          onChange={e => setCellBackground(e.target.value)}
-          />
-      </label>
+        <StyledLabel>
+          Background Color: 
+          <input
+            type="text"
+            value={cellBackground}
+            onChange={e => setCellBackground(e.target.value)}
+            />
+        </StyledLabel>
 
-      <label>
-        nth Generation:
-        <input
-          type="number"
-          value={ngen}
-          onChange={e => setNgen(e.target.value)}
-          />
-      </label>
+        <br/>
 
-      <label>
-        Speed per Generation in seconds:
-        <input
-          type="number"
-          value={speed}
-          onChange={e => setSpeed(e.target.value)}
-          />
-      </label>
+        <StyledLabel>
+          nth Generation:
+          <input
+            type="number"
+            value={ngen}
+            onChange={e => setNgen(e.target.value)}
+            />
+        </StyledLabel>
 
-    </form>
-      <button 
-      onClick={toggle}>
-          {running ? 'Stop' : 'Start'}
-      </button>
+        <br/>
 
-      <button 
-      onClick={nGeneration}>
-          Skip to generation
-      </button>
+        <StyledLabel>
+          Speed per Generation in seconds:
+          <input
+            type="number"
+            value={speed}
+            onChange={e => setSpeed(e.target.value)}
+            />
+        </StyledLabel>
 
-      <button 
-      onClick={() => {
-        reset();
-      }}
-      >
-        Reset
-      </button>
+      </form>
+      <ButtonContainer>
+        <Button 
+        onClick={toggle}>
+            {running ? 'Stop' : 'Start'}
+        </Button>
 
-      <div>Generation: {generation}</div>
+        <Button 
+        onClick={nGeneration}>
+            Skip to generation
+        </Button>
 
-      <div style ={{
-        display: 'grid',
-        gridTemplateColumns: `repeat(${gridSize}, ${cellSize}px)`
-      }}>
-        {grid.map((rows, ri) =>
-          rows.map((col, ci) => 
-            <div 
-            key ={`${ri}x${ci}`} 
-            onClick={() => {
-              const newGrid = produce(grid, newGrid => {
-                newGrid[ri][ci] = grid[ri][ci] ? 0 : 1;
-              });
-              setGrid(newGrid);
-            }}
-            style={{
-              width: cellSize, 
-              height: cellSize, 
-              backgroundColor: grid[ri][ci] ? `${color}` : `${cellBackground}`, 
-              border: "solid 1px black"
-            }} />)
-        )}
-      </div>
+        <Button 
+        onClick={() => {
+          reset();
+        }}
+        >
+          Reset
+        </Button>
+      </ButtonContainer>
+
+        <div>Generation: {generation}</div>
+
+        <div style ={{
+          display: 'grid',
+          gridTemplateColumns: `repeat(${gridSize}, ${cellSize}px)`
+        }}>
+          {grid.map((rows, ri) =>
+            rows.map((col, ci) => 
+              <div 
+              key ={`${ri}x${ci}`} 
+              onClick={() => {
+                const newGrid = produce(grid, newGrid => {
+                  newGrid[ri][ci] = grid[ri][ci] ? 0 : 1;
+                });
+                setGrid(newGrid);
+              }}
+              style={{
+                width: cellSize, 
+                height: cellSize, 
+                backgroundColor: grid[ri][ci] ? `${color}` : `${cellBackground}`, 
+                border: "solid 1px black"
+              }} />)
+          )}
+        </div>
+      </section>
     </div>
   );
 }
