@@ -131,17 +131,17 @@ function App() {
   justify-content: space-around;
   `;
 
-  const StyledLabel = styled.label`
-  font-family: ${font};
-  font-size: ${fontSize}rem;
-  color: ${textColor}
-  `;
-
   const Paragraph = styled.p`
   font-family: ${font};
   font-size: 1.5rem;
   color: ${textColor};
   `;
+
+  const inputStyle = {
+    fontFamily: `${font}`,
+    fontSize: `${fontSize}rem`,
+    color: `${textColor}` 
+  }
 
   return (
     <div className="App">
@@ -183,47 +183,51 @@ function App() {
         <form>
         <Heading>Input options</Heading>
 
-        <StyledLabel>
-          Color:
+        <label
+          style={inputStyle}>
+          Live Cell Color:
           <input
             type="text"
             value={color}
             onChange={e => setColor(e.target.value)}
             />
-        </StyledLabel>
+        </label>
 
         <br/>
 
-        <StyledLabel>
-          Background Color: 
+        <label
+          style={inputStyle}>
+          Dead Cell Color: 
           <input
             type="text"
             value={cellBackground}
             onChange={e => setCellBackground(e.target.value)}
             />
-        </StyledLabel>
+        </label>
 
         <br/>
 
-        <StyledLabel>
+        <label
+          style={inputStyle}>
           nth Generation:
           <input
             type="number"
             value={ngen}
             onChange={e => setNgen(e.target.value)}
             />
-        </StyledLabel>
+        </label>
 
         <br/>
 
-        <StyledLabel>
+        <label
+          style={inputStyle}>
           Speed per Generation in seconds:
           <input
             type="number"
             value={speed}
             onChange={e => setSpeed(e.target.value)}
             />
-        </StyledLabel>
+        </label>
 
       </form>
       <ButtonContainer>
@@ -246,7 +250,10 @@ function App() {
         </Button>
       </ButtonContainer>
 
-        <div>Generation: {generation}</div>
+      <div
+        style={inputStyle}>
+          Generation: {generation}
+      </div>
 
         <div style ={{
           display: 'grid',
