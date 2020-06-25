@@ -62,33 +62,37 @@ function App() {
   }
 
   useEffect(() => {
-    setGrid((oldGrid) => {
-      return produce(oldGrid, newGrid => {
-        for (let row = 0; row < gridSize; row++) {
-          for (let column = 0; column < gridSize; column++){
-            let neighbors = 0;
-            neighborsArray.forEach(neighbor => {
-              const xValue = row + neighbor[0]
-              const yValue = column + neighbor[1]
-              if (xValue >= 0 && xValue < gridSize && yValue >= 0 && yValue < gridSize) {
-                neighbors += oldGrid[xValue][yValue]
-              }
-            })
-
-            if (neighbors < 2) {
-              newGrid[row][column] = 0
-            }  
-            else if (neighbors > 3) {
-                newGrid[row][column] = 0
-              }
-            else if (oldGrid[row][column] === 0 && neighbors === 3) {
-                newGrid[row][column] = 1
+    let newGrid = Array.from({length: gridSize}).map(() => Array.from({length: gridSize}).fill(0))
+    for (let row = 0; row < gridSize; row++) {
+      for (let column = 0; column < gridSize; column++){
+        if (grid[row][column] === 1) {
+          newGrid[row][column] = 1
+        }
+      }}
+      for (let row = 0; row < gridSize; row++) {
+        for (let column = 0; column < gridSize; column++){
+          let neighbors = 0;
+          neighborsArray.forEach(neighbor => {
+            const xValue = row + neighbor[0]
+            const yValue = column + neighbor[1]
+            if (xValue >= 0 && xValue < gridSize && yValue >= 0 && yValue < gridSize) {
+              neighbors += grid[xValue][yValue]
             }
+          })
+
+          if (neighbors < 2) {
+            newGrid[row][column] = 0
+          }  
+          else if (neighbors > 3) {
+              newGrid[row][column] = 0
+            }
+          else if (grid[row][column] === 0 && neighbors === 3) {
+              newGrid[row][column] = 1
           }
         }
-      })
-    })
-  }, [generation])
+      }
+  setGrid(newGrid)
+}, [generation])
 
   useEffect(() => {
     let interval = null;
@@ -264,9 +268,14 @@ function App() {
               <div 
               key ={`${ri}x${ci}`} 
               onClick={() => {
-                const newGrid = produce(grid, newGrid => {
+                let newGrid = Array.from({length: gridSize}).map(() => Array.from({length: gridSize}).fill(0))
+                for (let row = 0; row < gridSize; row++) {
+                  for (let column = 0; column < gridSize; column++){
+                    if (grid[row][column] === 1) {
+                      newGrid[row][column] = 1
+                    }
+                  }}
                   newGrid[ri][ci] = grid[ri][ci] ? 0 : 1;
-                });
                 setGrid(newGrid);
               }}
               style={{
